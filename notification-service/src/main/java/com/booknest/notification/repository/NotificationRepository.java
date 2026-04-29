@@ -1,0 +1,14 @@
+package com.booknest.notification.repository;
+
+import com.booknest.notification.entity.Notification;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface NotificationRepository extends JpaRepository<Notification, Long> {
+    List<Notification> findByUserId(Long userId);
+    List<Notification> findByUserIdAndIsRead(Long userId, Boolean isRead);
+    long countByUserIdAndIsRead(Long userId, Boolean isRead);
+    List<Notification> findByType(String type);
+    void deleteByNotificationId(Long notificationId);
+}
