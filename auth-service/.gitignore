@@ -13,7 +13,7 @@ target/
 .springBeans
 .sts4-cache
 
-auth-service/src/main/resources/secret.properties
+auth-service/src/main/resources/secrets.properties
 
 ### IntelliJ IDEA ###
 .idea
