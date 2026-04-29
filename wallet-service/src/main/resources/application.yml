@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: wallet-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/booknest_wallet?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata
+    username: root
+    password: 1210@Kash
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+server:
+  port: 8085
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+razorpay:
+  key-id: rzp_test_ShFcKY2A2sfG0p
+  key-secret: 3AhkwNYLL9O0cNGCrAj3AbKs
+
+rabbitmq:
+  exchange: booknest.notification.exchange
+  routing-key: booknest.notification.routing-key
