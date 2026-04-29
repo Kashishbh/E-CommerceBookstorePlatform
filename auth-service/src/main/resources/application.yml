@@ -1,0 +1,55 @@
+spring:
+  config:
+    import: optional:classpath:secrets.properties
+
+  application:
+    name: auth-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/booknest_auth?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata
+    username: ${db.username}
+    password: ${db.password}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${google.client.id}
+            client-secret: ${google.client.secret}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: "http://localhost:8081/login/oauth2/code/google"
+
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  jwt:
+    secret: ${jwt.secret}
+    expiration: 86400000
+
+frontend:
+  oauth-success-url: http://localhost:4200/oauth-success
