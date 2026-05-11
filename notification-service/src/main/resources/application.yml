@@ -1,4 +1,7 @@
 spring:
+  config:
+    import: optional:classpath:secrets.properties
+
   application:
     name: notification-service
 
@@ -23,10 +26,10 @@ spring:
     password: guest
 
   mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
+    host: ${mail.host}
+    port: ${mail.port}
+    username: ${mail.username}
+    password: ${mail.password}
     properties:
       mail:
         smtp:
@@ -54,4 +57,4 @@ rabbitmq:
   routing-key: booknest.notification.routing-key
 
 auth-service:
-  base-url: ${AUTH_SERVICE_BASE_URL:http://localhost:8081}
+  base-url: ${auth.service.base-url}

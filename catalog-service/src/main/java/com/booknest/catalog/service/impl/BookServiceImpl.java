@@ -9,6 +9,9 @@ import com.booknest.catalog.exception.ResourceNotFoundException;
 import com.booknest.catalog.producer.NotificationEventProducer;
 import com.booknest.catalog.repository.BookRepository;
 import com.booknest.catalog.service.BookService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 public class BookServiceImpl implements BookService {
 
-    private static final int LOW_STOCK_THRESHOLD = 5L > Integer.MAX_VALUE ? 5 : 5;
+    private static final int LOW_STOCK_THRESHOLD = 5;
 
     private final BookRepository bookRepository;
     private final NotificationEventProducer notificationEventProducer;
@@ -29,6 +32,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "books", allEntries = true),
+            @CacheEvict(value = "featuredBooks", allEntries = true),
+            @CacheEvict(value = "booksByGenre", allEntries = true),
+            @CacheEvict(value = "searchBooks", allEntries = true)
+    })
     public BookResponse addBook(BookRequest request) {
         validateBookRequest(request);
 
@@ -45,6 +54,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Cacheable(value = "books")
     public List<BookResponse> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
@@ -53,6 +63,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Cacheable(value = "book", key = "#id")
     public BookResponse getBookById(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
@@ -60,6 +71,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Cacheable(value = "searchBooks", key = "#keyword")
     public List<BookResponse> searchBooks(String keyword) {
         return bookRepository
                 .findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrGenreContainingIgnoreCase(
@@ -70,6 +82,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Cacheable(value = "booksByGenre", key = "#genre")
     public List<BookResponse> getByGenre(String genre) {
         return bookRepository.findByGenreIgnoreCase(genre)
                 .stream()
@@ -78,6 +91,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "book", key = "#id"),
+            @CacheEvict(value = "books", allEntries = true),
+            @CacheEvict(value = "featuredBooks", allEntries = true),
+            @CacheEvict(value = "booksByGenre", allEntries = true),
+            @CacheEvict(value = "searchBooks", allEntries = true)
+    })
     public BookResponse updateBook(Long id, BookRequest request) {
         validateBookRequest(request);
 
@@ -104,6 +124,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "book", key = "#id"),
+            @CacheEvict(value = "books", allEntries = true),
+            @CacheEvict(value = "featuredBooks", allEntries = true),
+            @CacheEvict(value = "booksByGenre", allEntries = true),
+            @CacheEvict(value = "searchBooks", allEntries = true)
+    })
     public void deleteBook(Long id) {
         Book existing = bookRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
@@ -111,6 +138,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "book", key = "#id"),
+            @CacheEvict(value = "books", allEntries = true),
+            @CacheEvict(value = "featuredBooks", allEntries = true),
+            @CacheEvict(value = "booksByGenre", allEntries = true),
+            @CacheEvict(value = "searchBooks", allEntries = true)
+    })
     public BookResponse updateStock(Long id, Integer stock) {
         if (stock == null || stock < 0) {
             throw new BadRequestException("Stock cannot be negative");
@@ -128,6 +162,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Cacheable(value = "featuredBooks")
     public List<BookResponse> getFeaturedBooks() {
         return bookRepository.findByFeaturedTrue()
                 .stream()

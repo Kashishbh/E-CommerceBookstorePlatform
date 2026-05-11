@@ -24,6 +24,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private static final String PASSWORD_REGEX =
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&^#()_+\\-=\\[\\]{};:'\",.<>/\\\\|`~]).{8,}$";
 
     public AuthServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
@@ -38,6 +40,12 @@ public class AuthServiceImpl implements AuthService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registered");
         }
+        if (request.getPassword() == null || !request.getPassword().matches(PASSWORD_REGEX)) {
+            throw new RuntimeException(
+                "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character"
+            );
+        }
+
 
         User user = new User();
         user.setFullName(request.getFullName());
@@ -135,6 +143,12 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
             throw new RuntimeException("Old password is incorrect");
         }
+        if (request.getNewPassword() == null || !request.getNewPassword().matches(PASSWORD_REGEX)) {
+            throw new RuntimeException(
+                "New password must be at least 8 characters long and include uppercase, lowercase, number, and special character"
+            );
+        }
+
 
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
